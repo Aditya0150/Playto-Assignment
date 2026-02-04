@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Community Feed Prototype
 
 A threaded discussion platform with a dynamic 24-hour karma leaderboard.
@@ -12,13 +11,13 @@ A threaded discussion platform with a dynamic 24-hour karma leaderboard.
 ## Tech Stack
 - **Backend**: Django, Django REST Framework
 - **Frontend**: React (Vite), Tailwind CSS
-- **Database**: SQLite (default)
+- **Database**: SQLite (default for development), PostgreSQL (for production)
 
 ## Getting Started
 
 ### Backend Setup
 1. Navigate to the `backend` directory.
-2. Install dependencies: `pip install django djangorestframework django-cors-headers`.
+2. Install dependencies: `pip install -r requirements.txt`.
 3. Run migrations: `python manage.py migrate`.
 4. Seed test data: `python seed_data.py`.
 5. Start the server: `python manage.py runserver`.
@@ -28,8 +27,11 @@ A threaded discussion platform with a dynamic 24-hour karma leaderboard.
 2. Install dependencies: `npm install`.
 3. Start the dev server: `npm run dev`.
 
+## Deployment
+This project is configured for:
+- **Frontend**: Vercel (see `frontend/vercel.json`)
+- **Backend**: Render (see `render.yaml`)
+
 ## Explainer
 See [EXPLAINER.md](./EXPLAINER.md) for technical details on the comment threading and leaderboard logic.
-=======
-# Playto-Assignment
->>>>>>> 9987dcd8d40cf267293d1291a1a6dc49df87dc2f
+
