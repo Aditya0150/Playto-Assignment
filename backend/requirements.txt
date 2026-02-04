@@ -6,5 +6,3 @@ whitenoise[bolt]
 dj-database-url
 gunicorn
 psycopg2-binary
-psycopg2-binary
-django-cors-headers
