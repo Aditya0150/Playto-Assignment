@@ -17,6 +17,9 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-change-m
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+# Ensure Render and common hosts are always allowed
+if not any('onrender.com' in host for host in ALLOWED_HOSTS):
+    ALLOWED_HOSTS += [".onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -47,11 +50,7 @@ MIDDLEWARE = [
 ]
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173', cast=Csv())
-# Ensure Vercel is always allowed if no env var is set
-if not any('vercel.app' in origin for origin in CORS_ALLOWED_ORIGINS):
-    CORS_ALLOWED_ORIGINS += ["https://playto-assignment.vercel.app"]
-
+CORS_ALLOW_ALL_ORIGINS = True # Mirrored to Origin when credentials=True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-csrftoken',
