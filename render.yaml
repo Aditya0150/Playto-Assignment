@@ -3,7 +3,7 @@ services:
     name: community-feed-backend
     env: python
     buildCommand: pip install -r backend/requirements.txt && python backend/manage.py collectstatic --no-input && python backend/manage.py migrate
-    startCommand: gunicorn --bind 0.0.0.0:$PORT community_feed.wsgi:application
+    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT community_feed.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
