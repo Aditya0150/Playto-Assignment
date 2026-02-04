@@ -55,13 +55,13 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:5173',
+    default='http://localhost:5173,https://playto-assignment.vercel.app',
     cast=Csv(),
 )
-# Allow Vercel preview deploys when configured
+# Allow Vercel preview deploys
 CORS_ALLOWED_ORIGIN_REGEXES = config(
     'CORS_ALLOWED_ORIGIN_REGEXES',
-    default='',
+    default='https://.*\\.vercel\\.app',
     cast=Csv(),
 )
 CORS_ALLOW_HEADERS = list(default_headers) + [
