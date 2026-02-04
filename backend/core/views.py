@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework import viewsets, permissions, status, response
 from rest_framework.decorators import action, api_view, permission_classes
 from django.db.models import Count, Sum, Case, When, IntegerField, Q, Prefetch
@@ -202,6 +202,7 @@ def login_view(request):
     })
 
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def logout_view(request):
@@ -211,6 +212,7 @@ def logout_view(request):
 
 
 @api_view(['GET'])
+@ensure_csrf_cookie
 @permission_classes([permissions.AllowAny])
 def me_view(request):
     """Get current authenticated user"""

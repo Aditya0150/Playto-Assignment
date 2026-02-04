@@ -25,9 +25,11 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     try {
       await apiService.logout();
-      updateUserData();
     } catch (error) {
       console.error('Logout failed:', error);
+    } finally {
+      // Always refresh user data to clear state even if API fails
+      await updateUserData();
     }
   };
 

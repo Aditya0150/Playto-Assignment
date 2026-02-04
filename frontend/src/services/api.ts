@@ -17,8 +17,8 @@ async function ensureCSRFToken() {
   if (existing) return existing;
 
   try {
-    // Make a GET request to trigger CSRF token generation
-    await fetch(`${API_BASE_URL}/posts/`, {
+    // Make a GET request to trigger CSRF token generation (now forced by @ensure_csrf_cookie on /me/)
+    await fetch(`${API_BASE_URL}/me/`, {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -48,6 +48,8 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     }
     if (csrftoken) {
       headers['X-CSRFToken'] = csrftoken;
+    } else {
+      console.warn(`No CSRF token found for ${method} request to ${endpoint}`);
     }
   }
 
