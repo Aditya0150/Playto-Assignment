@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from decouple import config, Csv
 import dj_database_url
-
+from corsheaders.defaults import default_headers
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,12 +47,38 @@ MIDDLEWARE = [
 ]
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173', cast=Csv())
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^http://localhost:5173$",
+]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-csrftoken',
+]
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:5173', cast=Csv())
+# Normalize CSRF_TRUSTED_ORIGINS to ensure all have https:// scheme (required by Django 4+)
+CSRF_TRUSTED_ORIGINS = [
+    origin if origin.startswith('http') else f'https://{origin}'
+    for origin in CSRF_TRUSTED_ORIGINS
+]
+# Always include common vercel patterns if not specified
+if not any('vercel.app' in origin for origin in CSRF_TRUSTED_ORIGINS):
+    CSRF_TRUSTED_ORIGINS += ["https://*.vercel.app", "https://playto-assignment.vercel.app"]
+
+# Cross-domain Cookie Settings (Mandatory for Vercel -> Render)
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+# Required to allow session to be sent from non-HTTPS during local development if needed, 
+# but for Render it must be True.
+if DEBUG and not config('FORCE_SECURE_COOKIES', default=False, cast=bool):
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
 
 # REST Framework configuration
 REST_FRAMEWORK = {
@@ -150,8 +176,6 @@ STORAGES = {
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000 # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
