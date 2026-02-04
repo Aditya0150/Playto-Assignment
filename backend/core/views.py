@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.middleware.csrf import get_token
 from rest_framework import viewsets, permissions, status, response
 from rest_framework.decorators import action, api_view, permission_classes
 from django.db.models import Count, Sum, Case, When, IntegerField, Q, Prefetch
@@ -199,6 +200,7 @@ def login_view(request):
         'avatar': f'https://api.dicebear.com/7.x/avataaars/svg?seed={user.username}',
         'totalKarma': total_karma,
         'recentKarma': recent_karma,
+        'csrf_token': get_token(request),
     })
 
 
@@ -248,6 +250,7 @@ def me_view(request):
             'avatar': f'https://api.dicebear.com/7.x/avataaars/svg?seed={request.user.username}',
             'totalKarma': total_karma,
             'recentKarma': recent_karma,
+            'csrf_token': get_token(request),
         })
     else:
         return response.Response({

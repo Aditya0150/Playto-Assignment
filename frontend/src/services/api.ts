@@ -1,5 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
+// In-memory CSRF token storage for cross-domain requests
+let csrfTokenInMemory: string | null = null;
+
 // Helper to get avatar
 function getAvatar(username: string): string {
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
@@ -42,7 +45,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
   };
 
   if (method !== 'GET' && method !== 'HEAD') {
-    let csrftoken = getCookie('csrftoken');
+    let csrftoken = getCookie('csrftoken') || csrfTokenInMemory;
     if (!csrftoken) {
       csrftoken = await ensureCSRFToken();
     }
@@ -69,7 +72,12 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
       console.error(`API Error ${response.status} for ${endpoint}:`, errorBody);
       throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
     }
-    return await response.json();
+    const data = await response.json();
+    // Update in-memory CSRF token if returned in response body
+    if (data && data.csrf_token) {
+      csrfTokenInMemory = data.csrf_token;
+    }
+    return data;
   } catch (error) {
     console.error(`API call failed for ${endpoint}:`, error);
     throw error;

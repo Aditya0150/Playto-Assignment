@@ -47,11 +47,16 @@ MIDDLEWARE = [
 ]
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:5173', cast=Csv())
+# Ensure Vercel is always allowed if no env var is set
+if not any('vercel.app' in origin for origin in CORS_ALLOWED_ORIGINS):
+    CORS_ALLOWED_ORIGINS += ["https://playto-assignment.vercel.app"]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-csrftoken',
 ]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:5173', cast=Csv())
