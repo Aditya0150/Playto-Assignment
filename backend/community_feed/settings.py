@@ -50,8 +50,20 @@ MIDDLEWARE = [
 ]
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True # Mirrored to Origin when credentials=True
+# Production: explicit allowlist via env vars (default to local dev if not set)
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:5173',
+    cast=Csv(),
+)
+# Allow Vercel preview deploys when configured
+CORS_ALLOWED_ORIGIN_REGEXES = config(
+    'CORS_ALLOWED_ORIGIN_REGEXES',
+    default='',
+    cast=Csv(),
+)
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-csrftoken',
 ]

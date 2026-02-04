@@ -3,35 +3,40 @@
 A threaded discussion platform with a dynamic 24-hour karma leaderboard.
 
 ## Features
-- **Threaded Comments**: Efficiently loaded in a single query.
-- **Karma System**: 5 points for post likes, 1 point for comment likes.
-- **Dynamic Leaderboard**: Real-time calculation based on activity in the last 24 hours.
-- **Responsive UI**: Built with React and Tailwind CSS.
+- Threaded comments loaded efficiently in a single query for a post.
+- Karma system: 5 points for post likes, 1 point for comment likes.
+- Dynamic leaderboard based on activity in the last 24 hours.
+- Responsive UI built with React and Tailwind CSS.
 
 ## Tech Stack
-- **Backend**: Django, Django REST Framework
-- **Frontend**: React (Vite), Tailwind CSS
-- **Database**: SQLite (default for development), PostgreSQL (for production)
+- Backend: Django, Django REST Framework
+- Frontend: React (Vite), Tailwind CSS
+- Database: SQLite (local dev), PostgreSQL (production)
 
-## Getting Started
+## Local Development
 
-### Backend Setup
-1. Navigate to the `backend` directory.
-2. Install dependencies: `pip install -r requirements.txt`.
-3. Run migrations: `python manage.py migrate`.
-4. Seed test data: `python seed_data.py`.
-5. Start the server: `python manage.py runserver`.
+### Prereqs
+- Python 3.11
+- Node.js 18+ and npm
 
-### Frontend Setup
-1. Navigate to the `frontend` directory.
-2. Install dependencies: `npm install`.
-3. Start the dev server: `npm run dev`.
+### Backend
+1. `cd backend`
+2. Create `backend/.env` from `backend/.env.example` and set at least `DEBUG=True` and `SECRET_KEY`.
+3. (Optional) Create and activate a virtual environment.
+4. `pip install -r requirements.txt`
+5. `python manage.py migrate`
+6. (Optional) Seed sample data: `python seed_data.py`
+7. `python manage.py runserver`
 
-## Deployment
-This project is configured for:
-- **Frontend**: Vercel (see `frontend/vercel.json`)
-- **Backend**: Render (see `render.yaml`)
+Backend runs at `http://localhost:8000`.
+
+### Frontend
+1. `cd frontend`
+2. Set `VITE_API_BASE_URL=http://localhost:8000/api` in `frontend/.env` for local dev.
+3. `npm install`
+4. `npm run dev`
+
+Frontend runs at `http://localhost:5173`.
 
 ## Explainer
-See [EXPLAINER.md](./EXPLAINER.md) for technical details on the comment threading and leaderboard logic.
-
+See `EXPLAINER.md` for the nested comment tree, leaderboard math, and AI audit details.

@@ -31,6 +31,11 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
         post = self.get_object()
+        if request.user.is_authenticated and post.author_id == request.user.id:
+            return response.Response(
+                {'detail': 'You cannot like your own post.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         # Use authenticated user or create guest user for likes
         if request.user.is_authenticated:
             user = request.user
@@ -96,6 +101,11 @@ class CommentViewSet(viewsets.ModelViewSet):
         print(f"DEBUG: Like comment. Authenticated user: {request.user.is_authenticated}")
         print(f"DEBUG: Comment author: {comment.author.username}")
         print(f"DEBUG: Comment ID: {pk}")
+        if request.user.is_authenticated and comment.author_id == request.user.id:
+            return response.Response(
+                {'detail': 'You cannot like your own comment.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         
         # Use authenticated user or create guest user for likes
         if request.user.is_authenticated:
@@ -129,23 +139,23 @@ class LeaderboardViewSet(viewsets.ViewSet):
             post_likes = Like.objects.filter(
                 post__author=user,
                 timestamp__gte=yesterday
-            ).count()
+            ).exclude(user=user).count()
             recent_post_karma = post_likes * 5
             
             # Count likes on this user's comments in last 24h
             comment_likes = Like.objects.filter(
                 comment__author=user,
                 timestamp__gte=yesterday
-            ).count()
+            ).exclude(user=user).count()
             recent_comment_karma = comment_likes * 1
             
             recent_karma = recent_post_karma + recent_comment_karma
             
             # Calculate all-time karma
-            post_likes_total = Like.objects.filter(post__author=user).count()
+            post_likes_total = Like.objects.filter(post__author=user).exclude(user=user).count()
             total_post_karma = post_likes_total * 5
             
-            comment_likes_total = Like.objects.filter(comment__author=user).count()
+            comment_likes_total = Like.objects.filter(comment__author=user).exclude(user=user).count()
             total_comment_karma = comment_likes_total * 1
             
             total_karma = total_post_karma + total_comment_karma
@@ -185,12 +195,12 @@ def login_view(request):
     now = timezone.now()
     yesterday = now - timedelta(hours=24)
     
-    post_likes = Like.objects.filter(post__author=user, timestamp__gte=yesterday).count() * 5
-    comment_likes = Like.objects.filter(comment__author=user, timestamp__gte=yesterday).count() * 1
+    post_likes = Like.objects.filter(post__author=user, timestamp__gte=yesterday).exclude(user=user).count() * 5
+    comment_likes = Like.objects.filter(comment__author=user, timestamp__gte=yesterday).exclude(user=user).count() * 1
     recent_karma = post_likes + comment_likes
     
-    post_likes_total = Like.objects.filter(post__author=user).count() * 5
-    comment_likes_total = Like.objects.filter(comment__author=user).count() * 1
+    post_likes_total = Like.objects.filter(post__author=user).exclude(user=user).count() * 5
+    comment_likes_total = Like.objects.filter(comment__author=user).exclude(user=user).count() * 1
     total_karma = post_likes_total + comment_likes_total
     
     # Return user info
@@ -227,21 +237,21 @@ def me_view(request):
         post_likes_recent = Like.objects.filter(
             post__author=request.user, 
             timestamp__gte=yesterday
-        )
+        ).exclude(user=request.user)
         post_likes_count = post_likes_recent.count()
         
         # Likes on this user's COMMENTS in last 24h
         comment_likes_recent = Like.objects.filter(
             comment__author=request.user, 
             timestamp__gte=yesterday
-        )
+        ).exclude(user=request.user)
         comment_likes_count = comment_likes_recent.count()
         
         recent_karma = (post_likes_count * 5) + (comment_likes_count * 1)
         
         # All-time karma
-        post_likes_total = Like.objects.filter(post__author=request.user).count()
-        comment_likes_total = Like.objects.filter(comment__author=request.user).count()
+        post_likes_total = Like.objects.filter(post__author=request.user).exclude(user=request.user).count()
+        comment_likes_total = Like.objects.filter(comment__author=request.user).exclude(user=request.user).count()
         total_karma = (post_likes_total * 5) + (comment_likes_total * 1)
         
         return response.Response({
